@@ -1765,8 +1765,8 @@ int __init dm9000c_init(void)
 	 * PMC[1:0]   : 00-正常模式
 	 *
 	 */
-	*bankcon4 = (1<<8)|(1<<6);	/* 对于DM9000C可以设Tacc为1, 对于DM9000E,Tacc要设大一点,比如最大值7  */
-	//*bankcon4 = (7<<8)|(1<<6);  /* MINI2440使用DM9000E,Tacc要设大一点 */
+	//*bankcon4 = (1<<8)|(1<<6);	/* 对于DM9000C可以设Tacc为1, 对于DM9000E,Tacc要设大一点,比如最大值7  */
+	*bankcon4 = (7<<8)|(1<<6);  /* MINI2440使用DM9000E,Tacc要设大一点 */
 
 	iounmap(bwscon);
 	iounmap(bankcon4);
