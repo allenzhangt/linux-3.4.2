@@ -30,6 +30,8 @@
 #include <linux/mmc/host.h>
 #include <linux/ioport.h>
 #include <linux/platform_data/s3c-hsudc.h>
+#include <linux/gpio.h>
+#include <linux/spi/s3c24xx.h>
 
 #include <asm/irq.h>
 #include <asm/pmu.h>
@@ -1221,9 +1223,22 @@ void __init s3c24xx_mci_set_platdata(struct s3c24xx_mci_pdata *pdata)
 /* SPI */
 
 #ifdef CONFIG_PLAT_S3C24XX
+static void s3c_spi_set_cs(struct s3c2410_spi_info *spi, int cs, int pol)
+{
+	gpio_set_value(cs, pol);
+}
+
 static struct resource s3c_spi0_resource[] = {
 	[0] = DEFINE_RES_MEM(S3C24XX_PA_SPI, SZ_32),
 	[1] = DEFINE_RES_IRQ(IRQ_SPI0),
+};
+
+static struct s3c2410_spi_info spi0_info = {
+	.num_cs  = 0xffff,	/* 赋值给spi_master.num_chipselect, 
+						 *创建  spi_device时会和chip_select比较
+						 *在这里设为最大值 */
+	.bus_num = 0,
+	.set_cs  = s3c_spi_set_cs,
 };
 
 struct platform_device s3c_device_spi0 = {
@@ -1234,12 +1249,19 @@ struct platform_device s3c_device_spi0 = {
 	.dev		= {
 		.dma_mask		= &samsung_device_dma_mask,
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
+		.platform_data = &spi0_info,
 	}
 };
 
 static struct resource s3c_spi1_resource[] = {
 	[0] = DEFINE_RES_MEM(S3C24XX_PA_SPI1, SZ_32),
 	[1] = DEFINE_RES_IRQ(IRQ_SPI1),
+};
+
+static struct s3c2410_spi_info spi1_info = {
+	.num_cs  = 0xffff,
+	.bus_num = 1,
+	.set_cs  = s3c_spi_set_cs,
 };
 
 struct platform_device s3c_device_spi1 = {
@@ -1250,6 +1272,7 @@ struct platform_device s3c_device_spi1 = {
 	.dev		= {
 		.dma_mask		= &samsung_device_dma_mask,
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
+		.platform_data = &spi1_info,
 	}
 };
 #endif /* CONFIG_PLAT_S3C24XX */
